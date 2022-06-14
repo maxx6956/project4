@@ -108,9 +108,11 @@ def get_post(request, post_id):
     
     # Update likes
     elif request.method =="PUT":
-        # data = json.loads(request.body)
-        # if data.get("like") is not None:
-        #     user = User.objects.get(pk=data["like"])
+        data = json.loads(request.body)
+        if data.get("text") is not None:
+            post.text = data["text"]
+            post.save()
+            return HttpResponse(status=204)
         if request.user in post.like.all():
             post.like.remove(request.user)
         else:

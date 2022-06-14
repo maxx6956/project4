@@ -1,5 +1,6 @@
 {% extends "network/layout.html" %}
-
+{% load static %}
+-
 {% block body %}
 
 <div>Followers: {{ follows.follow.count }}</div>
@@ -11,21 +12,51 @@
 </form>
 {% endif %}
 <div class="container">
-<div class="d-flex flex-column-reverse border">
     {% for post in posts %}
-    <div class="d-flex flex-column border">
+    <div class="col border">
         <div class="">
-            <h2>{{ post.poster }}</h2>
+            <h2><a href="{% url 'userpage' post.poster %}">{{ post.poster }}</a></h2>
         </div>
-        <div class="">
+        {% if post.poster == request.user %}
+        <div class="" data-postid="{{ post.id }}">
             <p>{{ post.text }}</p>
         </div>
+        <button class="postText btn btn-info" data-postid="{{ post.id }}">Edit</button>
+        {% else %}
         <div>
-            likes: {{ post.like.count }}
+            <p>{{ post.text }}</p>
         </div>
+        {% endif %}
+        <button class="post btn btn-info" data-postid="{{ post.id }}">
+            likes: {{ post.like.count }}
+        </button>
     </div>
-    {% endfor %}
+{% endfor %}
 </div>
-</div>
+<nav aria-label="...">
+<ul class="pagination justify-content-center m-5">
+    {% if posts.has_previous %}
+        <li class="page-item">
+        <a class="page-link" href="?page={{ posts.previous_page_number }}"  aria-disabled="true">Previous</a>
+    {% else %}
+        <li class="page-item disabled">
+        <a class="page-link" href="#"  aria-disabled="true">Previous</a> 
+    {% endif %}
+    </li>
+    <li class="page-item active"><a class="page-link" href="#">{{ posts.number }}</a></li>
+    {% if posts.has_next %}
+        <li class="page-item">
+        <a class="page-link" href="?page={{ posts.next_page_number }}"  aria-disabled="true">Next</a>
+    {% else %}
+        <li class="page-item disabled">
+        <a class="page-link" href="#">Next</a>
+    {% endif %}
+    </li>
+</ul>
+</nav>
 
+{% endblock %}
+
+{% block script %}
+    <script src="{% static 'network/index.js' %}"></script>
 {% endblock %}
