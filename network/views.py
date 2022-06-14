@@ -45,7 +45,7 @@ def index(request):
     # print(test)
     return render(request, "network/index.html", {
         "form": PostForm,
-        "posts": posts
+        "posts": posts,
     })
 
 
