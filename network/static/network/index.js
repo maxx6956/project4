@@ -42,18 +42,20 @@ document.addEventListener('DOMContentLoaded', function(){
 })
 
 async function like(button) {
-    await fetch(`/get_post/${button.dataset.postid}`, {
+    await fetch(`/like_post/${button.dataset.postid}`, {
         method: 'PUT',
       });
     likeCount(button);
 }
 
 function likeCount(button){
-    fetch(`/get_post/${button.dataset.postid}`)
+    fetch(`/like_post/${button.dataset.postid}`)
     .then(response => response.json())
     .then(post => {
         // Print post
         console.log(post["like"]);
-        button.innerHTML = `likes: ${post["like"].length}`
+        button.innerHTML = `${post["like"].length} Likes`
     })
+    button.classList.toggle("btn-light")
+    button.classList.toggle("btn-warning")
 }

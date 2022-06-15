@@ -34,7 +34,8 @@ def index(request):
             post.save()
     posts = Post.objects.all()
     posts = posts.order_by('-timestamp')
-
+    if request.user in posts:
+        print("ÖÖÖÖÖÖÖÖÖÖÖÖ")
     p = Paginator(posts, 10)
     page = request.GET.get('page')
     posts = p.get_page(page)
@@ -53,8 +54,8 @@ def userpage(request, userpage):
     user = User.objects.get(username = userpage)
     follows = Follow.objects.get(account = user)
     posts = user.Posts.all()
-
     posts = posts.order_by('-timestamp')
+    allLikes = posts.like.all()
 
     p = Paginator(posts, 10)
     page = request.GET.get('page')
@@ -75,6 +76,7 @@ def userpage(request, userpage):
         "posts": posts,
         "current": user,
         "button": button,
+        "allLikes": allLikes
     })
 
 
@@ -95,7 +97,7 @@ def following(request):
 
 @csrf_exempt
 @login_required
-def get_post(request, post_id):
+def like_post(request, post_id):
 
     # Query for requested post
     try:
@@ -107,19 +109,35 @@ def get_post(request, post_id):
         return JsonResponse(post.serialize())
     
     # Update likes
-    elif request.method =="PUT":
-        data = json.loads(request.body)
-        if data.get("text") is not None:
-            post.text = data["text"]
-            post.save()
-            return HttpResponse(status=204)
-        if request.user in post.like.all():
-            post.like.remove(request.user)
-        else:
-            post.like.add(request.user)
+    if request.user in post.like.all():
+        post.like.remove(request.user)
+    else:
+        post.like.add(request.user)
     return HttpResponse(status=204)
 
 
+@csrf_exempt
+@login_required
+def get_post(request, post_id):
+
+    # Query for requested post
+    try:
+        post = Post.objects.get(pk=post_id)
+    except Post.DoesNotExist:
+        return JsonResponse({"error": "Post not found"}, status=404)
+
+    if request.method == "GET":
+        return JsonResponse(post.serialize())
+    
+    # Update text
+    elif request.method =="PUT":
+        print("WOOOOOOOOOOOOOOOOOOOOOOOOOOOOOR")
+        data = json.loads(request.body)
+        if data.get("text") is not None:
+            print("yuppp")
+            post.text = data["text"]
+            post.save()
+            return HttpResponse(status=204)
 
 
 def login_view(request):
