@@ -1,35 +1,47 @@
 {% extends "network/layout.html" %}
 {% load static %}
--
-{% block body %}
 
-<div>Followers: {{ follows.follow.count }}</div>
-<div>Following: {{ current.Follows.all.count }}</div>
-{% if request.user != current %}
-<form method="POST">
-    {% csrf_token %}
-    <button class="btn btn-info" type="submit" name="button" value="{{ button }}">{{ button }}</button>
-</form>
-{% endif %}
+{% block body %}
 <div class="container">
+    <div class="d-flex justify-content-center mt-2">
+        <h4>Profile Page for {{ current.username }}</h4>
+    </div>
+    <div class="d-flex justify-content-center">
+        <h4 class="m-2">Followers: {{ follows.follow.count }}</h4>
+        <h4 class="m-2">Following: {{ current.Follows.all.count }}</h4>
+        {% if request.user != current %}
+        <form method="POST">
+            {% csrf_token %}
+            <button class="btn btn-info m-2" type="submit" name="button" value="{{ button }}">{{ button }}</button>
+        </form>
+        {% endif %}
+    </div>
     {% for post in posts %}
-    <div class="col border">
+    <div class="col border mt-3 pb-3">
         <div class="">
             <h2><a href="{% url 'userpage' post.poster %}">{{ post.poster }}</a></h2>
         </div>
         {% if post.poster == request.user %}
         <div class="" data-postid="{{ post.id }}">
             <p>{{ post.text }}</p>
+            <p class="timestamp">{{ post.timestamp }}</p>
         </div>
         <button class="postText btn btn-info" data-postid="{{ post.id }}">Edit</button>
         {% else %}
         <div>
             <p>{{ post.text }}</p>
+            <p class="timestamp">{{ post.timestamp }}</p>
         </div>
         {% endif %}
-        <button class="post btn btn-info" data-postid="{{ post.id }}">
-            likes: {{ post.like.count }}
+        {% if request.user in post.like.all %}
+        <button class="post btn btn-warning" data-postid="{{ post.id }}">
+            {{ post.like.count }} Likes
         </button>
+        {% else %}
+        <button class="post btn btn-light" data-postid="{{ post.id }}">
+            {{ post.like.count }} Likes
+        </button>
+        {% endif %}
     </div>
 {% endfor %}
 </div>
@@ -43,7 +55,7 @@
         <a class="page-link" href="#"  aria-disabled="true">Previous</a> 
     {% endif %}
     </li>
-    <li class="page-item active"><a class="page-link" href="#">{{ posts.number }}</a></li>
+    <li class="page-item active"><a class="page-link" href="#">{{ posts.number }}/{{ posts.paginator.num_pages }}</a></li>
     {% if posts.has_next %}
         <li class="page-item">
         <a class="page-link" href="?page={{ posts.next_page_number }}"  aria-disabled="true">Next</a>

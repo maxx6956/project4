@@ -34,28 +34,24 @@ def index(request):
             post.save()
     posts = Post.objects.all()
     posts = posts.order_by('-timestamp')
-    if request.user in posts:
-        print("ÖÖÖÖÖÖÖÖÖÖÖÖ")
+    tests = posts
+
     p = Paginator(posts, 10)
     page = request.GET.get('page')
     posts = p.get_page(page)
     
-    # test = Post.objects.get(text = "litty post")
-    # if request.user in test.like.all():
-    #     print("yes")
-    # print(test)
     return render(request, "network/index.html", {
         "form": PostForm,
         "posts": posts,
     })
 
 
+@login_required
 def userpage(request, userpage):
     user = User.objects.get(username = userpage)
     follows = Follow.objects.get(account = user)
     posts = user.Posts.all()
     posts = posts.order_by('-timestamp')
-    allLikes = posts.like.all()
 
     p = Paginator(posts, 10)
     page = request.GET.get('page')
@@ -76,19 +72,20 @@ def userpage(request, userpage):
         "posts": posts,
         "current": user,
         "button": button,
-        "allLikes": allLikes
     })
 
 
 @login_required
 def following(request):
     follows = request.user.Follows.all()
-    posts = Post.objects.filter(reduce(or_, [Q(poster=follow.account) for follow in follows]))
-    posts = posts.order_by('-timestamp')
-
-    p = Paginator(posts, 10)
-    page = request.GET.get('page')
-    posts = p.get_page(page)
+    try:
+        posts = Post.objects.filter(reduce(or_, [Q(poster=follow.account) for follow in follows]))
+        posts = posts.order_by('-timestamp')
+        p = Paginator(posts, 10)
+        page = request.GET.get('page')
+        posts = p.get_page(page)
+    except:
+        posts = None
 
     return render(request, "network/following.html", {
         "posts": posts,

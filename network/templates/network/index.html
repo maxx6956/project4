@@ -1,9 +1,11 @@
 {% extends "network/layout.html" %}
 {% load static %}
 
+{% block title %}All Posts{% endblock %}
 {% block body %}
-    <div class="container border">
-        <div class="d-flex border p-2">
+    <div class="container">
+        <div class="col border p-2">
+            <h3 class="font-weight-bold">New Post</h3>
             <form method="POST">
                 {% csrf_token %}
                 {{ form }}
@@ -11,21 +13,23 @@
             </form>
         </div>
         {% for post in posts %}
-        <div class="col border">
+        <div class="col border mt-3 pb-3">
             <div class="">
                 <h2><a href="{% url 'userpage' post.poster %}">{{ post.poster }}</a></h2>
             </div>
             {% if post.poster == request.user %}
             <div class="" data-postid="{{ post.id }}">
                 <p>{{ post.text }}</p>
+                <p class="timestamp">{{ post.timestamp }}</p>
             </div>
             <button class="postText btn btn-info" data-postid="{{ post.id }}">Edit</button>
             {% else %}
             <div>
                 <p>{{ post.text }}</p>
+                <p class="timestamp">{{ post.timestamp }}</p>
             </div>
             {% endif %}
-            {% if request.user in post.like %}
+            {% if request.user in post.like.all %}
             <button class="post btn btn-warning" data-postid="{{ post.id }}">
                 {{ post.like.count }} Likes
             </button>
@@ -47,7 +51,7 @@
                 <a class="page-link" href="#"  aria-disabled="true">Previous</a> 
             {% endif %}
             </li>
-            <li class="page-item active"><a class="page-link" href="#">{{ posts.number }}</a></li>
+            <li class="page-item active"><a class="page-link" href="#">{{ posts.number }}/{{ posts.paginator.num_pages }}</a></li>
             {% if posts.has_next %}
                 <li class="page-item">
                 <a class="page-link" href="?page={{ posts.next_page_number }}"  aria-disabled="true">Next</a>
